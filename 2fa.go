@@ -75,22 +75,29 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	otp := binary.BigEndian.Uint32(bytes[offset : offset+4])
 	otp &^= 1 << 31
 
-	fmt.Printf("secret = % x (%q)\n", secret, secret)
-	fmt.Printf("counter = %v\n", counter)
-	fmt.Printf("data = % x\n", data)
-	fmt.Printf("bytes = % x\n", bytes)
-	fmt.Printf("offset = %v\n", offset)
-	fmt.Printf("otp = %v\n", otp)
-
 	// the OTP is expressed as an N digit decimal number (think of a PIN)
 	modulo := uint32(1)
 	for i := 0; i < digits; i++ {
 		modulo *= 10
 	}
 	format := fmt.Sprintf("%%0%dd", digits)
-	fmt.Printf("modulo = %v\n", modulo)
-	fmt.Printf("format = %q\n", format)
-	return fmt.Sprintf(format, otp%modulo)
+	pin := fmt.Sprintf(format, otp%modulo)
+
+	if false { // debug code
+		fmt.Printf("shared_secret = %1\n", shared_secret)
+		fmt.Printf("counter = %v\n", counter)
+		fmt.Printf("digits = %v\n", digits)
+		fmt.Printf("secret = % x (%q)\n", secret, secret)
+		fmt.Printf("data = % x\n", data)
+		fmt.Printf("bytes = % x\n", bytes)
+		fmt.Printf("offset = %v\n", offset)
+		fmt.Printf("otp = %v\n", otp)
+		fmt.Printf("modulo = %v\n", modulo)
+		fmt.Printf("format = %q\n", format)
+		fmt.Printf("pin = %q\n", pin)
+	}
+
+	return pin
 }
 
 func main() {
