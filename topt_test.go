@@ -45,3 +45,15 @@ func TestTOPT_RFC6238(t *testing.T) {
 	}
 
 }
+
+func TestTOPT_secrets(t *testing.T) {
+	a1 := TOPT_inner("ABCDEFGH", 55, 7)
+	a2 := TOPT_inner("ABCD EFGH", 55, 7)
+	a3 := TOPT_inner("aBcD eFgH", 55, 7)
+	a4 := TOPT_inner("abcd efgh", 55, 7)
+	a5 := TOPT_inner("  a BC d  efgh  ", 55, 7)
+
+	if a1 != a2 || a2 != a3 || a3 != a4 || a4 != a5 {
+		t.Errorf("lowercase/whitespace in secrets not considered equivalent")
+	}
+}
