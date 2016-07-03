@@ -94,10 +94,6 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 }
 
 func main() {
-
-	str := "Hello world....\x00"
-	fmt.Println(str, "=", base32.StdEncoding.EncodeToString([]byte(str)))
-
 	if len(os.Args) < 2 {
 		os.Stderr.WriteString("2fa <base32 shared secret>\n")
 		os.Exit(1)
