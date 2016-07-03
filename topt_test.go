@@ -9,9 +9,9 @@ func TestTOPT_google_authenticator(t *testing.T) {
 	// use the test vector given in the google authenticator PAM library source code in:
 	//  https://github.com/google/google-authenticator/blob/master/libpam/tests/pam_google_authenticator_unittest.c
 
-	secret := "JBSWY3DPEB3W64TMMQXC4LQA" // the base-32-encoded shared secret
-	counter := uint64(10000)             // counter value in uint tests
-	correct := "050548"                  // correct OTP
+	secret := "2SH3V3GDW7ZNMGYE" // the base-32-encoded shared secret
+	counter := uint64(10000)     // counter value in uint tests
+	correct := "050548"          // correct OTP
 
 	otp := TOPT_inner(secret, counter, 6)
 
@@ -47,6 +47,7 @@ func TestTOPT_RFC6238(t *testing.T) {
 }
 
 func TestTOPT_secrets(t *testing.T) {
+	// test that whitespace and lowercase in the secret are handled ok
 	a1 := TOPT_inner("ABCDEFGH", 55, 7)
 	a2 := TOPT_inner("ABCD EFGH", 55, 7)
 	a3 := TOPT_inner("aBcD eFgH", 55, 7)
