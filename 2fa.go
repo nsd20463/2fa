@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -43,6 +44,19 @@ func TOTP(shared_secret string) string {
 // inner part of TOPT() broken out so it can be unit tested
 func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	// convert shared_secret to binary
+	// some websites present the secret broken into blocks with spaces
+	// and some print in lowercase when base-32 only uses uppercase letters
+	// so fix both of those details so it is clean base-32
+	shared_secret = strings.ToUpper(shared_secret)
+	shared_secret = strings.Map(func(r rune) rune {
+		switch {
+		case r == ' ':
+			return -1
+		default:
+			return r
+		}
+	}, shared_secret)
+
 	secret, err := base32.StdEncoding.DecodeString(shared_secret)
 	if err != nil {
 		log.Fatalln("Couldn't parse the secret as base32:", err)
