@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,7 +30,7 @@ import (
 // computes the current one-time-password given
 // the shared secret with the other side.
 // The shared secret is base-32-encoded.
-func TOTP(shared_secret string) string {
+func TOTP(shared_secret string, digits int) string {
 	// compute seconds since the 1st day of our lord of unix
 	seconds := time.Now().Unix()
 
@@ -38,7 +39,7 @@ func TOTP(shared_secret string) string {
 	// the unix zero-time
 	counter := uint64(seconds) / 30
 
-	return TOPT_inner(shared_secret, counter, 6)
+	return TOPT_inner(shared_secret, counter, digits)
 }
 
 // inner part of TOPT() broken out so it can be unit tested
@@ -101,10 +102,21 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		os.Stderr.WriteString("2fa <base32 shared secret>\n")
+	if len(os.Args) < 2 || len(os.Args) > 3 {
+		os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN]\n")
 		os.Exit(1)
 	}
 
-	fmt.Println(TOTP(os.Args[1]))
+	digits := 6
+	if len(os.Args) == 3 {
+		// decode the 2nd arg
+		var err error
+		digits, err = strconv.Atoi(os.Args[2])
+		if err != nil {
+			os.Stderr.WriteString(fmt.Sprintf("2fa: can't parse %q as # of digits in PIN\n"))
+			os.Exit(1)
+		}
+	}
+
+	fmt.Println(TOTP(os.Args[1], digits))
 }
