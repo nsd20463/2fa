@@ -70,7 +70,7 @@ func TOPT_counter(shared_secret string, counter uint64) string {
 
 	// the OTP is expressed as a 6 digit decimal number (think of a PIN)
 	// the upper digits are discarded
-	return fmt.Sprintf("%06d", otp%10000)
+	return fmt.Sprintf("%06d", otp%1000000)
 }
 
 func main() {
