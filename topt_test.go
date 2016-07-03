@@ -12,7 +12,7 @@ func TestTOPT(t *testing.T) {
 	counter := uint64(10000)             // counter value in uint tests
 	correct := "050548"                  // correct OTP
 
-	otp := TOPT_counter(secret, counter)
+	otp := TOPT_inner(secret, counter, 6)
 
 	if otp != correct {
 		t.Errorf("TOPT test vector failed. expected TOPT_counter(%v,%v) = %v; got %v", secret, counter, correct, otp)

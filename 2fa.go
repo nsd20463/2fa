@@ -37,11 +37,11 @@ func TOTP(shared_secret string) string {
 	// the unix zero-time
 	counter := uint64(seconds) / 30
 
-	return TOPT_counter(shared_secret, counter)
+	return TOPT_inner(shared_secret, counter, 6)
 }
 
 // inner part of TOPT() broken out so it can be unit tested
-func TOPT_counter(shared_secret string, counter uint64) string {
+func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	// convert shared_secret to binary
 	secret, err := base32.StdEncoding.DecodeString(shared_secret)
 	if err != nil {
@@ -68,9 +68,15 @@ func TOPT_counter(shared_secret string, counter uint64) string {
 	fmt.Printf("offset = %v\n", offset)
 	fmt.Printf("otp = %v\n", otp)
 
-	// the OTP is expressed as a 6 digit decimal number (think of a PIN)
-	// the upper digits are discarded
-	return fmt.Sprintf("%06d", otp%1000000)
+	// the OTP is expressed as an N digit decimal number (think of a PIN)
+	modulo := uint32(1)
+	for i := 0; i < digits; i++ {
+		modulo *= 10
+	}
+	format := fmt.Sprintf("%%0%dd", digits)
+	fmt.Printf("modulo = %v\n", modulo)
+	fmt.Printf("format = %q\n", format)
+	return fmt.Sprintf(format, otp%modulo)
 }
 
 func main() {
