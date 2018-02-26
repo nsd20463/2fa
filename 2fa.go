@@ -102,13 +102,13 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 }
 
 func main() {
-	if len(os.Args) < 2 || len(os.Args) > 3 {
-		os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN]\n")
+	if len(os.Args) < 2 || len(os.Args) > 4 {
+		os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN] [verify]\n")
 		os.Exit(1)
 	}
 
 	digits := 6
-	if len(os.Args) == 3 {
+	if len(os.Args) >= 3 {
 		// decode the 2nd arg
 		var err error
 		digits, err = strconv.Atoi(os.Args[2])
@@ -118,5 +118,9 @@ func main() {
 		}
 	}
 
-	fmt.Println(TOTP(os.Args[1], digits))
+	if len(os.Args) <= 3 {
+		fmt.Println(TOTP(os.Args[1], digits))
+	} else {
+		fmt.Println("verification code: ", TOPT_inner(os.Args[1], 0, digits))
+	}
 }
