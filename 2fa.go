@@ -119,7 +119,7 @@ func main() {
 		var err error
 		digits, err = strconv.Atoi(os.Args[2])
 		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("2fa: can't parse %q as # of digits in PIN\n"))
+			os.Stderr.WriteString(fmt.Sprintf("2fa: can't parse %q as # of digits in PIN\n", os.Args[2]))
 			os.Exit(1)
 		}
 	}
