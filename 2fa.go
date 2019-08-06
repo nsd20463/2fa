@@ -85,7 +85,7 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	pin := fmt.Sprintf(format, otp%modulo)
 
 	if false { // debug code
-		fmt.Printf("shared_secret = %1\n", shared_secret)
+		fmt.Printf("shared_secret = %q\n", shared_secret)
 		fmt.Printf("counter = %v\n", counter)
 		fmt.Printf("digits = %v\n", digits)
 		fmt.Printf("secret = % x (%q)\n", secret, secret)
@@ -102,9 +102,15 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 }
 
 func main() {
-	if len(os.Args) < 2 || len(os.Args) > 4 {
+	if len(os.Args) < 2 || len(os.Args) > 4 || os.Args[1] == "-h" || os.Args[1] == "--help" {
 		os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN] [verify]\n")
 		os.Exit(1)
+	}
+
+	verify := false
+	if len(os.Args) >= 3 && os.Args[len(os.Args)-1] == "verify" {
+		verify = true
+		os.Args = os.Args[:len(os.Args)-1]
 	}
 
 	digits := 6
@@ -118,9 +124,9 @@ func main() {
 		}
 	}
 
-	if len(os.Args) <= 3 {
-		fmt.Println(TOTP(os.Args[1], digits))
-	} else {
+	if verify {
 		fmt.Println("verification code: ", TOPT_inner(os.Args[1], 0, digits))
+	} else {
+		fmt.Println(TOTP(os.Args[1], digits))
 	}
 }

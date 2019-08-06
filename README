@@ -1,0 +1,28 @@
+
+2fa (two factor authentication) is tiny commandline tool which implements the one-time-PIN generating functionality of the google authenticator phone app.
+
+Given the 2fa shared secret, it generates the one-time PIN (the 2nd authentication factor)
+using the standard TOPT algorithm. I wrote it to make sure I understood how google's 2fa worked,
+and found it useful in its own right.
+
+
+Use: 
+
+  2fa <base-32 shared secret> [# of digits in PIN] [verify]
+
+Verification mode is used by some websites to make sure you have the right shared secret, even if
+your local time is wrong. The verification code is the PIN you'd get if the time was 0.
+
+
+Examples:
+
+  2fa xgtsihi5qtwwhaob
+  068701
+
+  2fa xgtsihi5qtwwhaob 10
+  0416722948
+
+  2fa xgtsihi5qtwwhaob verify
+  verification code:  501785
+
+
