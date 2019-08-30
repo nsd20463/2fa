@@ -76,7 +76,12 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	otp := binary.BigEndian.Uint32(bytes[offset : offset+4])
 	otp &^= 1 << 31
 
-	// the OTP is expressed as an N digit decimal number (think of a PIN)
+	// the OTP is expressed as an N digit decimal number (think of a PIN), which means
+	// only 10 digits are possible, and 10 isn't good since the first digit can only be 0, 1 or 2.
+	// So only allow 1 through 9.
+	if digits < 1 || digits >= 10 {
+		log.Fatalf("Too many digits (%d) requested. The TOPT algorithm only generates PINs up to 9 digits long.", digits)
+	}
 	modulo := uint32(1)
 	for i := 0; i < digits; i++ {
 		modulo *= 10
@@ -101,10 +106,18 @@ func TOPT_inner(shared_secret string, counter uint64, digits int) string {
 	return pin
 }
 
+func help(return_code int) {
+	os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN] [verify]\n")
+	os.Exit(return_code)
+}
+
 func main() {
-	if len(os.Args) < 2 || len(os.Args) > 4 || os.Args[1] == "-h" || os.Args[1] == "--help" {
-		os.Stderr.WriteString("2fa <base32 shared secret> [# of digits in PIN] [verify]\n")
-		os.Exit(1)
+	if len(os.Args) < 2 {
+		help(1)
+	}
+	switch os.Args[1] {
+	case "-h", "--help", "-help":
+		help(0)
 	}
 
 	verify := false
@@ -115,18 +128,21 @@ func main() {
 
 	digits := 6
 	if len(os.Args) >= 3 {
-		// decode the 2nd arg
-		var err error
-		digits, err = strconv.Atoi(os.Args[2])
-		if err != nil {
-			os.Stderr.WriteString(fmt.Sprintf("2fa: can't parse %q as # of digits in PIN\n", os.Args[2]))
-			os.Exit(1)
+		arg := os.Args[len(os.Args)-1]
+		tentative_digits, err := strconv.Atoi(arg)
+		if err == nil {
+			digits = tentative_digits
+			os.Args = os.Args[:len(os.Args)-1]
 		}
 	}
 
+	// the remain arg(s) are the shared secret. It's usually just one long word,
+	// but some websites present it as a series of 4-character words which need to be concatenated together.
+	shared_secret := strings.Join(os.Args[1:], "")
+
 	if verify {
-		fmt.Println("verification code: ", TOPT_inner(os.Args[1], 0, digits))
+		fmt.Println("verification code: ", TOPT_inner(shared_secret, 0, digits))
 	} else {
-		fmt.Println(TOTP(os.Args[1], digits))
+		fmt.Println(TOTP(shared_secret, digits))
 	}
 }
